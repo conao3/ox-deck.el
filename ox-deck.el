@@ -28,6 +28,8 @@
 
 ;;; Code:
 
+(require 'ox-gfm)
+
 (defgroup org-export-deckmd nil
   "Export markdown for deck from `org-mode' document.
 deck: https://github.com/k1LoW/deck"
@@ -43,10 +45,31 @@ deck: https://github.com/k1LoW/deck"
         (?o "To file and open"
             (lambda (a s v b)
               (if a (org-deck-export-to-markdown t s v)
-                (org-open-file (org-deck-export-to-markdown nil s v))))))))
+                (org-open-file (org-deck-export-to-markdown nil s v)))))))
+  :translate-alist
+  '((headline . org-deck-headline)))
 
 
-;;; frontend
+;;; Transform functions
+
+(defun org-deck-headline (headline contents info)
+  "Make HEADLINE string.
+CONTENTS is the headline contents.
+INFO is a plist used as a communication channel."
+  (let ((level (org-export-get-relative-level headline info))
+        (title (org-export-data (org-element-property :title headline) info)))
+    (if (= level 1)
+        (mapconcat #'identity
+                   (list "---"
+                         ""
+                         (format "# %s" title)
+                         ""
+                         contents)
+                   "\n")
+      (org-gfm-headline headline contents info))))
+
+
+;;; Frontend
 
 ;;;###autoload
 (defun org-deck-export-as-markdown (&optional async subtreep visible-only)
