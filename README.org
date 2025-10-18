@@ -32,10 +32,15 @@ Export markdown for deck from org-mode document.
 Sample install code using [[https://github.com/conao3/leaf.el][leaf.el]].
 
 #+begin_src emacs-lisp
-  (leaf ox-deck :ensure t)
+(leaf ox-deck
+  :vc ( :url "https://github.com/conao3/ox-deck.el.git")
+  :ensure t
+  :after org
+  :require t)
 #+end_src
 
 * Usage
+After require this package, =org-export-dispatch (C-c C-e)= will show export dispatcher including this exporter.
 
 * Customize
 
@@ -64,7 +69,7 @@ Below operation flow is recommended.
   git checkout [feature-branch]     # Checkout branch named [feature-branch]
 
   # <edit loop>
-  emacs ox-deck.el             # Edit something you want
+  emacs ox-deck.el                  # Edit something you want
 
   make test                         # Test ox-deck
   git commit -am "brabra"           # Commit (auto-run test before commit)
