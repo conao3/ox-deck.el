@@ -28,10 +28,95 @@
 
 ;;; Code:
 
-(defgroup ox-deck nil
-  "Export markdown for deck from org-mode document."
+(defgroup org-export-deckmd nil
+  "Export markdown for deck from `org-mode' document.
+deck: https://github.com/k1LoW/deck"
   :group 'convenience
   :link '(url-link :tag "Github" "https://github.com/conao3/ox-deck.el"))
+
+(org-export-define-derived-backend 'deckmd 'gfm
+  :menu-entry
+  '(?d "Export to Deck Flavored Markdown"
+       ((?G "To temporary buffer"
+            (lambda (a s v b) (org-deck-export-as-markdown a s v)))
+        (?g "To file" (lambda (a s v b) (org-deck-export-to-markdown a s v)))
+        (?o "To file and open"
+            (lambda (a s v b)
+              (if a (org-deck-export-to-markdown t s v)
+                (org-open-file (org-deck-export-to-markdown nil s v))))))))
+
+
+;;; frontend
+
+;;;###autoload
+(defun org-deck-export-as-markdown (&optional async subtreep visible-only)
+  "Export current buffer to a Deck Flavored Markdown buffer.
+
+If narrowing is active in the current buffer, only export its
+narrowed part.
+
+If a region is active, export that region.
+
+A non-nil optional argument ASYNC means the process should happen
+asynchronously.  The resulting buffer should be accessible
+through the `org-export-stack' interface.
+
+When optional argument SUBTREEP is non-nil, export the sub-tree
+at point, extracting information from the headline properties
+first.
+
+When optional argument VISIBLE-ONLY is non-nil, don't export
+contents of hidden elements.
+
+Export is done in a buffer named \"*Org DECK Export*\", which will
+be displayed when `org-export-show-temporary-export-buffer' is
+non-nil."
+  (interactive)
+  (org-export-to-buffer 'deckmd "*Org DeckMD Export*"
+    async subtreep visible-only nil nil (lambda () (text-mode))))
+
+;;;###autoload
+(defun org-deck-convert-region-to-md ()
+  "Assume `org-mode' syntax, and convert it to Deck Flavored Markdown.
+This can be used in any buffer.  For example, you can write an
+itemized list in `org-mode' syntax in a Markdown buffer and use
+this command to convert it."
+  (interactive)
+  (org-export-replace-region-by 'deckmd))
+
+;;;###autoload
+(defun org-deck-export-to-markdown (&optional async subtreep visible-only)
+  "Export current buffer to a Deck Flavored Markdown file.
+
+If narrowing is active in the current buffer, only export its
+narrowed part.
+
+If a region is active, export that region.
+
+A non-nil optional argument ASYNC means the process should happen
+asynchronously.  The resulting file should be accessible through
+the `org-export-stack' interface.
+
+When optional argument SUBTREEP is non-nil, export the sub-tree
+at point, extracting information from the headline properties
+first.
+
+When optional argument VISIBLE-ONLY is non-nil, don't export
+contents of hidden elements.
+
+Return output file's name."
+  (interactive)
+  (let ((outfile (org-export-output-file-name ".md" subtreep)))
+    (org-export-to-file 'deckmd outfile async subtreep visible-only)))
+
+;;;###autoload
+(defun org-deck-publish-to-markdown (plist filename pub-dir)
+  "Publish an org file to Markdown.
+FILENAME is the filename of the Org file to be published.  PLIST
+is the property list for the given project.  PUB-DIR is the
+publishing directory.
+Return output file name."
+  (org-publish-org-to 'deckmd filename ".md" plist pub-dir))
 
 (provide 'ox-deck)
 
