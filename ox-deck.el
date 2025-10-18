@@ -39,9 +39,9 @@ deck: https://github.com/k1LoW/deck"
 (org-export-define-derived-backend 'deckmd 'gfm
   :menu-entry
   '(?d "Export to Deck Flavored Markdown"
-       ((?G "To temporary buffer"
+       ((?D "To temporary buffer"
             (lambda (a s v b) (org-deck-export-as-markdown a s v)))
-        (?g "To file" (lambda (a s v b) (org-deck-export-to-markdown a s v)))
+        (?d "To file" (lambda (a s v b) (org-deck-export-to-markdown a s v)))
         (?o "To file and open"
             (lambda (a s v b)
               (if a (org-deck-export-to-markdown t s v)
