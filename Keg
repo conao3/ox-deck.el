@@ -1,0 +1,9 @@
+;; Keg
+
+(source gnu melpa)
+
+(package
+ (ox-deck
+  (recipe . (ox-deck :fetcher github :repo "conao3/ox-deck.el"))))
+
+(dev-dependency cort)
