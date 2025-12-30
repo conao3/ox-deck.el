@@ -1,12 +1,21 @@
-## test.yml
+name: CI
 
-name: Main workflow
 on:
-  push: {branches: [master]}
-  pull_request: {branches: [master]}
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build:
+  test:
+    name: Emacs ${{ matrix.emacs_version }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -17,17 +26,24 @@ jobs:
         include:
           - emacs_version: 'snapshot'
             allow_failure: true
+
     steps:
-      - uses: actions/checkout@v5
-      - uses: purcell/setup-emacs@master
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Emacs
+        uses: purcell/setup-emacs@master
         with:
           version: ${{ matrix.emacs_version }}
-      - uses: conao3/setup-keg@master
+
+      - name: Setup Keg
+        uses: conao3/setup-keg@master
 
       - name: Run tests
-        if: matrix.allow_failure != true
-        run: 'make test'
+        if: ${{ !matrix.allow_failure }}
+        run: make test
 
       - name: Run tests (allow failure)
-        if: matrix.allow_failure == true
-        run: 'make test || true'
+        if: ${{ matrix.allow_failure }}
+        continue-on-error: true
+        run: make test
